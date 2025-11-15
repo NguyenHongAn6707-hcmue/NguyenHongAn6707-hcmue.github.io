@@ -1,0 +1,68 @@
+/* Thiết lập cơ bản cho trang */
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    font-family: sans-serif;
+}
+
+/* 1. Thanh Tiêu đề và Nút (Header Bar) */
+#header-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    padding: 0 20px;
+    z-index: 100; 
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#back-button {
+    background: #507CFF; 
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#title-box {
+    background: #007BFF;
+    color: white;
+    padding: 10px 30px;
+    border-radius: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    border: 3px solid #66CCFF; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 2. Khu vực chứa trò chơi/hoạt hình và thiết lập nền */
+#game-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    /* Dùng images.png */
+    background-image: url('images.png'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding-top: 70px; 
+    box-sizing: border-box;
+}
+
+/* 3. Định vị và kích thước cho các đối tượng */
+.character {
+    position: absolute;
+    /* Xóa transition để đảm bảo ảnh chạy thật nhanh */
+}

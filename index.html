@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ của Tôi</title>
+    <!-- Liên kết đến một tệp CSS nếu bạn muốn tùy chỉnh thêm. 
+         Hiện tại tôi sẽ dùng CSS nhúng trong HTML cho đơn giản. --><style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px; /* Tạo khoảng cách xung quanh trang */
+            background-color: #f4f4f4; /* Màu nền nhẹ */
+        }
+        .header {
+            display: flex; /* Dùng flexbox để ảnh và đường kẻ nằm ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+            margin-bottom: 20px;
+        }
+        .profile-pic {
+            width: 50px; /* Kích thước ảnh profile */
+            height: 50px;
+            border-radius: 5px; /* Bo tròn nhẹ góc ảnh */
+            margin-right: 15px; /* Khoảng cách giữa ảnh và đường kẻ */
+            object-fit: cover; /* Đảm bảo ảnh không bị méo */
+        }
+        .horizontal-line {
+            flex-grow: 1; /* Đường kẻ sẽ chiếm hết không gian còn lại */
+            border-top: 1px solid #ccc; /* Đường kẻ mỏng màu xám */
+        }
+        .links-container {
+            margin-top: 30px; /* Khoảng cách từ đường kẻ đến các link */
+        }
+        .links-container a {
+            display: block; /* Mỗi link trên một dòng riêng */
+            margin-bottom: 10px; /* Khoảng cách giữa các link */
+            font-size: 1.2em; /* Kích thước chữ to hơn */
+            color: #007bff; /* Màu xanh cho link */
+            text-decoration: none; /* Xóa gạch chân mặc định */
+        }
+        .links-container a:hover {
+            text-decoration: underline; /* Gạch chân khi rê chuột qua */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <!-- Thay 'profile.png' bằng tên tệp ảnh của bạn --><img src="profile.png" alt="Ảnh Profile" class="profile-pic">
+        <div class="horizontal-line"></div>
+    </div>
+
+    <div class="links-container">
+        <!-- Link đến trang Hồ cá vui nhộn --><a href="sharks.html">Hồ cá Vui nhộn</a>
+        
+        <!-- Link thứ hai, có thể là quay về trang index này (nếu bạn muốn thử)
+             hoặc một trang khác nếu bạn có.
+             Tôi sẽ để nó là "Trang chủ (hiện tại)" để bạn dễ hình dung. --><a href="cv.html">Trang Thông tin cá nhân</a>
+    </div>
+
+</body>
+</html>

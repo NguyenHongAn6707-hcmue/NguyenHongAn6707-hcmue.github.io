@@ -1,0 +1,304 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+.cv-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Nút quay lại */
+.back-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #3498db;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 100;
+    transition: background 0.3s ease;
+}
+
+.back-button:hover {
+    background: #2980b9;
+}
+
+/* Sidebar bên trái */
+.sidebar {
+    flex: 1;
+    background: #2c3e50;
+    color: white;
+    padding: 30px;
+}
+
+/* Phần ảnh đại diện */
+.avatar-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #34495e;
+    margin: 0 auto 20px;
+    border: 5px solid #34495e;
+    background-image: url('profile.png');
+    background-size: cover;
+    background-position: center;
+}
+
+.avatar-section h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: white;
+}
+
+.avatar-section h2 {
+    font-size: 16px;
+    color: #ecf0f1;
+    font-weight: normal;
+}
+
+/* Các section trong sidebar */
+.sidebar section {
+    margin-bottom: 30px;
+}
+
+.sidebar h3 {
+    color: #ecf0f1;
+    font-size: 18px;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #34495e;
+}
+
+.about-me p,
+.contact-info p {
+    font-size: 14px;
+    color: #bdc3c7;
+    margin-bottom: 10px;
+}
+
+/* Skills */
+.skill-item {
+    margin-bottom: 15px;
+}
+
+.skill-item label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ecf0f1;
+    font-size: 14px;
+}
+
+.skill-bar {
+    background: #34495e;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-level {
+    background: #3498db;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Reference */
+.reference-item {
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.reference-item p {
+    color: #bdc3c7;
+    margin-bottom: 5px;
+}
+
+.reference-item strong {
+    color: #ecf0f1;
+}
+
+/* Nội dung chính bên phải */
+.main-content {
+    flex: 2;
+    padding: 40px;
+    background: white;
+}
+
+.main-content h3 {
+    color: #2c3e50;
+    font-size: 22px;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3498db;
+}
+
+/* EDUCATION - Thiết kế mới với khoảng cách đều */
+.education {
+    margin-bottom: 40px;
+}
+
+.timeline {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+}
+
+.timeline-item {
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 5px solid #3498db;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+}
+
+.timeline-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    background: white;
+}
+
+.timeline-period {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 25px;
+    font-size: 13px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 15px;
+    align-self: flex-start;
+}
+
+.timeline-content h4 {
+    color: #2c3e50;
+    margin-bottom: 12px;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: 1.4;
+}
+
+.timeline-content p {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    flex-grow: 1;
+}
+
+/* Phần Dream */
+.pasion {
+    margin-top: 40px;
+}
+
+.pasion .timeline {
+    gap: 25px;
+}
+
+.pasion .timeline-item {
+    min-height: 150px;
+    background: #fff8e1;
+    border-left: 5px solid #ff9800;
+}
+
+.pasion .timeline-period {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cv-container {
+        flex-direction: column;
+        margin: 10px;
+    }
+    
+    .sidebar {
+        padding: 20px;
+    }
+    
+    .main-content {
+        padding: 20px;
+    }
+    
+    .back-button {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+    
+    .timeline {
+        gap: 20px;
+    }
+    
+    .timeline-item {
+        padding: 25px;
+        min-height: 160px;
+    }
+    
+    .avatar {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .avatar-section h1 {
+        font-size: 20px;
+    }
+}
+
+/* Hiệu ứng hover */
+.skill-bar:hover .skill-level {
+    background: #2980b9;
+}
+
+.timeline-item:hover .timeline-period {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+/* Animation cho timeline items */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.timeline-item {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.timeline-item:nth-child(3) { animation-delay: 0.3s; }
+.timeline-item:nth-child(4) { animation-delay: 0.4s; }
