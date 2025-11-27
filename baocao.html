@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trình Khám Phá HTML DOM API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 
+    Chosen Palette: Warm Neutrals (White, Gray, Blue Accent)
+    Application Structure Plan: Sử dụng cấu trúc SPA một trang với thanh điều hướng cố định bên trái (sidebar) và khu vực nội dung chính. Cấu trúc này mô phỏng tài liệu gốc, giúp người dùng dễ dàng điều hướng qua các phần học thuật. Điểm tương tác chính là các 'hộp cát' (sandbox) demo trực tiếp. Thay vì chỉ đọc, người dùng có thể nhấp vào các nút để *thực thi* các lệnh DOM (như `getElementById`, `appendChild`, `classList.toggle`) và thấy kết quả ngay lập tức trên các phần tử HTML mẫu. Điều này biến một báo cáo tĩnh thành một công cụ học tập tương tác, củng cố sự hiểu biết thông qua thực hành.
+    Visualization & Content Choices: 
+    - Báo cáo (I, VI - Giới thiệu, Kết luận): Mục đích: Thông báo. Trình bày: Văn bản tĩnh (HTML `<p>`, `<h2>`). Tương tác: Không. Lý do: Nội dung giới thiệu và kết luận.
+    - Báo cáo (II - Cấu trúc): Mục đích: Sắp xếp. Trình bày: Văn bản + Bảng (từ báo cáo) + Sơ đồ cây DOM trực quan (HTML/CSS lồng nhau). Tương tác: Không (chỉ trực quan). Lý do: Trực quan hóa mối quan hệ cha-con-anh em tốt hơn văn bản thuần túy.
+    - Báo cáo (III, V - API & Styling): Mục đích: So sánh/Thông báo. Trình bày: "Hộp cát" tương tác với các phần tử HTML mẫu, các nút điều khiển (HTML `<button>`) và khu vực hiển thị mã (`<pre>`). Tương tác: Người dùng nhấp vào nút để thực thi các lệnh DOM (chọn, thay đổi nội dung, thay đổi style) và xem kết quả + mã JS tương ứng. Lý do: Học tập qua thực hành là hiệu quả nhất để hiểu API.
+    - Báo cáo (IV - Sự kiện): Mục đích: Thay đổi. Trình bày: "Hộp cát" tương tác với nút, trường nhập liệu và khu vực "log". Tương tác: Người dùng thực hiện hành động (click, gõ phím) và xem nhật ký sự kiện được cập nhật. Lý do: Trực quan hóa luồng xử lý sự kiện.
+    - Thư viện: Không sử dụng Chart.js hoặc Plotly.js vì báo cáo này không chứa dữ liệu số. Tất cả các tương tác sẽ được xử lý bằng Vanilla JS.
+    - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+        main section {
+            padding-top: 6rem;
+            margin-top: -4rem;
+        }
+        .sidebar-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            color: #374151;
+            transition: all 0.2s ease-in-out;
+        }
+        .sidebar-link:hover {
+            background-color: #e5e7eb;
+            color: #111827;
+        }
+        .demo-box {
+            border: 2px dashed #d1d5db;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background-color: #ffffff;
+        }
+        .code-snippet {
+            background-color: #1f2937;
+            color: #d1d5db;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+        .demo-highlight {
+            box-shadow: 0 0 0 3px #60a5fa;
+            background-color: #dbeafe;
+        }
+        .dom-tree {
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: #ffffff;
+        }
+        .dom-tree div {
+            padding-left: 2rem;
+            margin-top: 0.5rem;
+            border-left: 2px dashed #9ca3af;
+            position: relative;
+        }
+        .dom-tree div::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.8rem;
+            width: 1.5rem;
+            height: 2px;
+            background: #9ca3af;
+        }
+        .dom-tree code {
+            background: #e5e7eb;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            color: #1e40af;
+        }
+         .dom-tree span {
+            font-style: italic;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="flex bg-gray-50 text-gray-800">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-72 fixed top-0 left-0 h-screen bg-white shadow-md p-6 overflow-y-auto">
+        <h1 class="text-xl font-bold text-blue-700 mb-6">Báo Cáo DOM API</h1>
+        <nav>
+            <ul>
+                <li class="mb-2"><a href="#gioi-thieu" class="sidebar-link">I. Giới Thiệu Chung</a></li>
+                <li class="mb-2"><a href="#cau-truc" class="sidebar-link">II. Cấu Trúc và Các Nút</a></li>
+                <li class="mb-2"><a href="#truy-cap" class="sidebar-link">III. Truy Cập và Thao Tác</a></li>
+                <li class="mb-2"><a href="#su-kien" class="sidebar-link">IV. Xử Lý Sự Kiện</a></li>
+                <li class="mb-2"><a href="#styling" class="sidebar-link">V. Thao Tác Phong Cách</a></li>
+                <li class="mb-2"><a href="#ket-luan" class="sidebar-link">VI. Kết Luận</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-72 p-10 flex-1">
+        
+        <section id="gioi-thieu">
+            <h2 class="text-3xl font-bold mb-4 text-blue-900">I. Giới Thiệu Chung về DOM</h2>
+            
+            <h3 class="text-2xl font-semibold mt-6 mb-3">1.1 Khái niệm và Định nghĩa</h3>
+            <p class="mb-4 text-lg leading-relaxed">
+                Document Object Model (DOM) là một <strong>giao diện lập trình ứng dụng (API)</strong> độc lập với nền tảng và ngôn ngữ, được W3C (World Wide Web Consortium) tiêu chuẩn hóa. Nó định nghĩa cách các đối tượng trong một tài liệu XML hoặc HTML được tổ chức.
+            </p>
+            <p class="mb-4 text-lg leading-relaxed">
+                Về bản chất, DOM cung cấp một <strong>biểu diễn cấu trúc cây (tree structure)</strong> của tài liệu, cho phép các chương trình (như JavaScript) truy cập và thao tác với cấu trúc, nội dung và kiểu dáng của tài liệu đó.
+            </p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-3">1.2 DOM là gì?</h3>
+            <ul class="list-disc list-inside space-y-2 text-lg">
+                <li><strong>D - Document (Tài liệu):</strong> Đại diện cho toàn bộ tài liệu HTML/XML, thường là đối tượng `document` toàn cục.</li>
+                <li><strong>O - Object (Đối tượng):</strong> Mỗi thành phần trong tài liệu (thẻ, thuộc tính, văn bản) được biểu diễn dưới dạng một đối tượng JavaScript.</li>
+                <li><strong>M - Model (Mô hình):</strong> Biểu diễn các mối quan hệ (Parent-Child, Sibling) giữa các đối tượng này theo cấu trúc cây phân cấp.</li>
+            </ul>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-3">1.3 Vai trò cốt lõi của HTML DOM API</h3>
+            <p class="mb-4 text-lg leading-relaxed">
+                DOM là cầu nối thiết yếu cho phép các trang web trở nên động và tương tác:
+            </p>
+            <ol class="list-decimal list-inside space-y-2 text-lg">
+                <li><strong>Thay đổi nội dung:</strong> Sửa đổi văn bản trong các thẻ HTML.</li>
+                <li><strong>Thay đổi cấu trúc:</strong> Thêm, xóa hoặc sắp xếp lại các phần tử (thẻ) HTML.</li>
+                <li><strong>Thay đổi kiểu dáng:</strong> Sửa đổi các thuộc tính CSS (màu sắc, kích thước, bố cục).</li>
+                <li><strong>Xử lý sự kiện:</strong> Phản ứng lại các hành động của người dùng (nhấp chuột, gõ phím, di chuyển chuột).</li>
+            </ol>
+        </section>
+
+        <hr class="my-12">
+
+        <section id="cau-truc">
+            <h2 class="text-3xl font-bold mb-4 text-blue-900">II. Cấu Trúc Phân Cấp và Các Loại Nút</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Tài liệu HTML DOM được tổ chức thành một cấu trúc cây nơi mỗi thành phần là một <strong>Nút (Node)</strong>.
+            </p>
+            
+            <h3 class="text-2xl font-semibold mt-6 mb-3">2.1 Các Loại Nút Chính</h3>
+            <div class="overflow-x-auto shadow-md rounded-lg">
+                <table class="w-full text-left text-base bg-white">
+                    <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
+                        <tr>
+                            <th scope="col" class="py-3 px-6">Loại Nút</th>
+                            <th scope="col" class="py-3 px-6">Đối tượng JavaScript</th>
+                            <th scope="col" class="py-3 px-6">Mô Tả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="py-4 px-6 font-medium"><strong>Document</strong></td>
+                            <td class="py-4 px-6">`document`</td>
+                            <td class="py-4 px-6">Nút gốc, đại diện cho toàn bộ trang web.</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="py-4 px-6 font-medium"><strong>Element</strong></td>
+                            <td class="py-4 px-6">`HTMLElement`</td>
+                            <td class="py-4 px-6">Đại diện cho các thẻ HTML (ví dụ: `&lt;div&gt;`, `&lt;p&gt;`).</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="py-4 px-6 font-medium"><strong>Attribute</strong></td>
+                            <td class="py-4 px-6">`Attr`</td>
+                            <td class="py-4 px-6">Đại diện cho các thuộc tính của thẻ (ví dụ: `id="main"`).</td>
+                        </tr>
+                        <tr class="border-b bg-gray-50">
+                            <td class="py-4 px-6 font-medium"><strong>Text</strong></td>
+                            <td class="py-4 px-6">`Text`</td>
+                            <td class="py-4 px-6">Đại diện cho nội dung văn bản bên trong một Element.</td>
+                        </tr>
+                        <tr class="bg-white">
+                            <td class="py-4 px-6 font-medium"><strong>Comment</strong></td>
+                            <td class="py-4 px-6">`Comment`</td>
+                            <td class="py-4 px-6">Đại diện cho các bình luận HTML (`&lt;!-- ... --&gt;`).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-3">2.2 Các Mối Quan Hệ Giữa Các Nút</h3>
+            <p class="mb-4 text-lg leading-relaxed">
+                Trong mô hình cây, các nút có mối quan hệ cố định được JavaScript sử dụng để điều hướng. Hãy xem ví dụ trực quan dưới đây:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="dom-tree">
+                    <code>&lt;body&gt;</code>
+                    <div>
+                        <code>&lt;div id="container"&gt;</code> <span>(Parent của h1 và p)</span>
+                        <div>
+                            <code>&lt;h1&gt;</code> <span>(Child của div, Sibling của p)</span>
+                        </div>
+                        <div>
+                            <code>&lt;p&gt;</code> <span>(Child của div, Sibling của h1)</span>
+                        </div>
+                    </div>
+                </div>
+                <ul class="list-disc list-inside space-y-2 text-lg self-center">
+                    <li><strong>parentNode:</strong> Nút cha duy nhất của nút hiện tại.</li>
+                    <li><strong>childNodes:</strong> Một danh sách các nút con (bao gồm cả nút văn bản).</li>
+                    <li><strong>children:</strong> Một danh sách chỉ bao gồm các nút Element con.</li>
+                    <li><strong>firstElementChild:</strong> Nút Element con đầu tiên.</li>
+                    <li><strong>nextElementSibling:</strong> Nút Element anh chị em kế tiếp.</li>
+                </ul>
+            </div>
+        </section>
+
+        <hr class="my-12">
+
+        <section id="truy-cap">
+            <h2 class="text-3xl font-bold mb-4 text-blue-900">III. Các API Chính để Truy Cập và Thao Tác</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Đây là phần cốt lõi của DOM, cho phép bạn tìm, thay đổi, thêm hoặc xóa các phần tử. Hãy thử tương tác trực tiếp với các phần tử mẫu dưới đây.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Demo Area -->
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3">Khu vực Demo</h3>
+                    <div class="demo-box space-y-4" id="demo-area">
+                        <div id="box-1" class="shape p-4 bg-gray-200 rounded-md transition-all">Box 1 (id="box-1", class="shape")</div>
+                        <div id="box-2" class="shape p-4 bg-gray-200 rounded-md transition-all">Box 2 (id="box-2", class="shape")</div>
+                        
+                        <p id="text-demo" class="text-lg p-4 bg-gray-200 rounded-md transition-all">Đây là văn bản gốc.</p>
+                        
+                        <ul id="list-demo" class="list-disc list-inside p-4 bg-gray-200 rounded-md min-h-[50px]">
+                            <li>Mục 1</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Code Snippet Area -->
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3">Mã JavaScript đã chạy</h3>
+                    <div class="code-snippet" id="code-snippet-area">
+                        // Nhấp vào một nút điều khiển để xem mã...
+                    </div>
+                </div>
+
+                <!-- Controls Area -->
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold mb-3">Bảng Điều Khiển</h3>
+                    <div class="p-6 bg-white rounded-lg shadow-md">
+                        
+                        <h4 class="text-xl font-medium mb-3">3.1 Truy Vấn và Chọn Lựa (Selection)</h4>
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            <button id="btn-select-id" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Chọn <u>Box 1</u> bằng ID</button>
+                            <button id="btn-select-class" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Chọn <u>tất cả Box</u> bằng Class</button>
+                            <button id="btn-select-query" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Chọn <u>Box 2</u> bằng Query</button>
+                            <button id="btn-clear-select" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors">Xóa Chọn</button>
+                        </div>
+                        
+                        <h4 class="text-xl font-medium mb-3">3.2 Thao Tác Nội Dung</h4>
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            <button id="btn-set-text" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">Đổi nội dung bằng <code>.textContent</code></button>
+                            <button id="btn-set-html" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">Đổi nội dung bằng <code>.innerHTML</code></button>
+                            <button id="btn-set-attr" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">Đặt thuộc tính <code>data-example</code> cho Box 1</button>
+                        </div>
+
+                        <h4 class="text-xl font-medium mb-3">3.3 Thao Tác Cấu Trúc</h4>
+                        <div class="flex flex-wrap gap-3">
+                            <button id="btn-add-child" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">Thêm mục vào danh sách (appendChild)</button>
+                            <button id="btn-remove-child" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">Xóa mục cuối (removeChild)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12">
+
+        <section id="su-kien">
+            <h2 class="text-3xl font-bold mb-4 text-blue-900">IV. Xử Lý Sự Kiện (Event Handling)</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                DOM API cho phép bạn "lắng nghe" và phản hồi lại các hành động của người dùng. Phương pháp hiện đại nhất là sử dụng `addEventListener`.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3">Khu vực Demo Sự Kiện</h3>
+                    <div class="demo-box space-y-4">
+                        <button id="btn-event-click" class="w-full px-4 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-medium">Click vào tôi!</button>
+                        <input type="text" id="input-event-key" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Gõ phím vào đây...">
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3">Nhật ký (Log) Sự Kiện</h3>
+                    <div id="event-log-area" class="code-snippet min-h-[150px] max-h-[300px] overflow-y-auto">
+                        // Thực hiện một hành động để xem log...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12">
+
+        <section id="styling">
+            <h2 class="text-3xl font-bold mb-4 text-blue-900">V. Thao Tác Phong Cách (Styling)</h2>
+            <p class="mb-6 text-lg leading-relaxed">
+                Bạn có thể thay đổi CSS của phần tử bằng `element.style` (cho style nội tuyến) hoặc `element.classList` (phương pháp được khuyên dùng).
+            </p>
+            <p class="mb-6 text-lg leading-relaxed">
+                Chúng ta sẽ sử dụng lại khu vực demo ở Mục III. Hãy thử các nút điều khiển bên dưới và quan sát sự thay đổi trên <strong>Box 1</strong>.
+            </p>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                 <div>
+                    <h3 class="text-2xl font-semibold mb-3">Khu vực Demo</h3>
+                    <div class="demo-box">
+                         <div id="box-style-demo" class="p-4 bg-gray-200 rounded-md transition-all text-center font-medium">
+                            Box Demo (id="box-style-demo")
+                         </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-2xl font-semibold mb-3">Mã JavaScript đã chạy</h3>
+                    <div class="code-snippet" id="code-snippet-style-area">
+                        // Nhấp vào một nút điều khiển để xem mã...
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <h3 class="text-2xl font-semibold mb-3">Bảng Điều Khiển Styling</h3>
+                    <div class="p-6 bg-white rounded-lg shadow-md">
+                        <h4 class="text-xl font-medium mb-3">5.1 Thay Đổi Style Nội Tuyến</h4>
+                        <div class="flex flex-wrap gap-3 mb-6">
+                            <button id="btn-set-style" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors">Đổi màu nền (<code>.style</code>)</button>
+                            <button id="btn-reset-style" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors">Reset Style</button>
+                        </div>
+
+                        <h4 class="text-xl font-medium mb-3">5.2 Thao Tác với Class</h4>
+                        <div class="flex flex-wrap gap-3">
+                            <button id="btn-toggle-class" class="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors">Thêm/Xóa Class (<code>.classList.toggle</code>)</button>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-600">Lớp <code>.demo-highlight</code> sẽ thêm viền xanh và nền xanh nhạt.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12">
+
+        <section id="ket-luan">
+            <h2 class="text-3xl font-bold mb-4 text-blue-900">VI. Kết Luận và Tầm Quan Trọng</h2>
+            <p class="mb-4 text-lg leading-relaxed">
+                HTML DOM API là nền tảng cơ bản và không thể thiếu của lập trình Front-end. Nó biến tài liệu HTML tĩnh thành một đối tượng tương tác, có thể bị thay đổi theo thời gian thực bởi JavaScript.
+            </p>
+            <p class="mb-4 text-lg leading-relaxed">
+                Việc nắm vững DOM, đặc biệt là các phương thức truy vấn hiện đại (`querySelector`, `querySelectorAll`) và mô hình xử lý sự kiện `addEventListener`, là điều kiện tiên quyết để xây dựng bất kỳ ứng dụng web động và có tính tương tác cao nào.
+            </p>
+            <p class="mb-4 text-lg leading-relaxed">
+                Mặc dù các framework hiện đại (như React, Vue) sử dụng các mô hình trừu tượng (Virtual DOM) để tối ưu hóa, kiến thức sâu về DOM vẫn là chìa khóa để hiểu được cơ chế hoạt động thực sự dưới vỏ bọc.
+            </p>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // === Helper Functions ===
+            const codeSnippetArea = document.getElementById('code-snippet-area');
+            const codeSnippetStyleArea = document.getElementById('code-snippet-style-area');
+            const eventLogArea = document.getElementById('event-log-area');
+
+            const updateCode = (area, code) => {
+                area.textContent = code.trim();
+            };
+
+            const logEvent = (message) => {
+                if(eventLogArea.textContent.startsWith('//')) {
+                    eventLogArea.textContent = '';
+                }
+                eventLogArea.textContent = `${new Date().toLocaleTimeString()}: ${message}\n${eventLogArea.textContent}`;
+            };
+
+            const clearHighlights = () => {
+                document.querySelectorAll('.demo-highlight').forEach(el => {
+                    el.classList.remove('demo-highlight');
+                });
+            };
+
+            // === Demo Elements ===
+            const box1 = document.getElementById('box-1');
+            const box2 = document.getElementById('box-2');
+            const allShapes = document.getElementsByClassName('shape');
+            const textDemo = document.getElementById('text-demo');
+            const listDemo = document.getElementById('list-demo');
+            const boxStyleDemo = document.getElementById('box-style-demo');
+
+            // === Section III: Access & Manipulation Controls ===
+            
+            // 3.1 Selection
+            document.getElementById('btn-select-id').addEventListener('click', () => {
+                clearHighlights();
+                box1.classList.add('demo-highlight');
+                updateCode(codeSnippetArea, `
+const box1 = document.getElementById('box-1');
+box1.classList.add('demo-highlight');
+                `);
+            });
+
+            document.getElementById('btn-select-class').addEventListener('click', () => {
+                clearHighlights();
+                // HTMLCollection is live, so we iterate
+                for(let shape of allShapes) {
+                    shape.classList.add('demo-highlight');
+                }
+                updateCode(codeSnippetArea, `
+const allShapes = document.getElementsByClassName('shape');
+for(let shape of allShapes) {
+    shape.classList.add('demo-highlight');
+}
+                `);
+            });
+
+            document.getElementById('btn-select-query').addEventListener('click', () => {
+                clearHighlights();
+                const box2Query = document.querySelector('#box-2');
+                if (box2Query) {
+                    box2Query.classList.add('demo-highlight');
+                }
+                updateCode(codeSnippetArea, `
+const box2Query = document.querySelector('#box-2');
+box2Query.classList.add('demo-highlight');
+                `);
+            });
+
+            document.getElementById('btn-clear-select').addEventListener('click', () => {
+                clearHighlights();
+                updateCode(codeSnippetArea, `
+document.querySelectorAll('.demo-highlight').forEach(el => {
+    el.classList.remove('demo-highlight');
+});
+                `);
+            });
+
+            // 3.2 Content
+            document.getElementById('btn-set-text').addEventListener('click', () => {
+                textDemo.textContent = 'Nội dung đã thay đổi bằng .textContent';
+                updateCode(codeSnippetArea, `
+const textDemo = document.getElementById('text-demo');
+textDemo.textContent = 'Nội dung đã thay đổi bằng .textContent';
+                `);
+            });
+
+            document.getElementById('btn-set-html').addEventListener('click', () => {
+                textDemo.innerHTML = 'Nội dung đã thay đổi bằng <strong>.innerHTML</strong>';
+                updateCode(codeSnippetArea, `
+const textDemo = document.getElementById('text-demo');
+textDemo.innerHTML = 'Nội dung đã thay đổi bằng <strong>.innerHTML</strong>';
+                `);
+            });
+
+            document.getElementById('btn-set-attr').addEventListener('click', () => {
+                box1.setAttribute('data-example', 'Đây là một thuộc tính dữ liệu');
+                box1.textContent = 'Box 1 (đã có data-example)';
+                updateCode(codeSnippetArea, `
+const box1 = document.getElementById('box-1');
+box1.setAttribute('data-example', 'Đây là một thuộc tính dữ liệu');
+// (Kiểm tra bằng Inspect Element để xem thuộc tính)
+                `);
+            });
+
+            // 3.3 Structure
+            document.getElementById('btn-add-child').addEventListener('click', () => {
+                const newItem = document.createElement('li');
+                const itemNum = listDemo.children.length + 1;
+                newItem.textContent = `Mục mới ${itemNum}`;
+                listDemo.appendChild(newItem);
+                updateCode(codeSnippetArea, `
+const listDemo = document.getElementById('list-demo');
+const newItem = document.createElement('li');
+newItem.textContent = 'Mục mới ${itemNum}';
+listDemo.appendChild(newItem);
+                `);
+            });
+
+            document.getElementById('btn-remove-child').addEventListener('click', () => {
+                const lastItem = listDemo.lastElementChild;
+                if(lastItem) {
+                    listDemo.removeChild(lastItem);
+                    updateCode(codeSnippetArea, `
+const listDemo = document.getElementById('list-demo');
+const lastItem = listDemo.lastElementChild;
+if(lastItem) {
+    listDemo.removeChild(lastItem);
+}
+                    `);
+                } else {
+                    updateCode(codeSnippetArea, '// Không còn mục nào để xóa');
+                }
+            });
+
+            // === Section IV: Event Handling ===
+            document.getElementById('btn-event-click').addEventListener('click', () => {
+                logEvent('Sự kiện "click" xảy ra trên nút!');
+            });
+            
+            document.getElementById('input-event-key').addEventListener('keydown', (e) => {
+                logEvent(`Sự kiện "keydown" xảy ra. Phím: ${e.key}`);
+            });
+
+            updateCode(eventLogArea, `
+// === Đã gán các trình nghe sự kiện: ===
+
+// --- Click ---
+const button = document.getElementById('btn-event-click');
+button.addEventListener('click', () => {
+    logEvent('Sự kiện "click" xảy ra trên nút!');
+});
+
+// --- Keydown ---
+const input = document.getElementById('input-event-key');
+input.addEventListener('keydown', (e) => {
+    logEvent(\`Sự kiện "keydown" xảy ra. Phím: \${e.key}\`);
+});
+            `);
+            eventLogArea.textContent = '// Thực hiện một hành động để xem log...';
+
+
+            // === Section V: Styling ===
+            document.getElementById('btn-set-style').addEventListener('click', () => {
+                boxStyleDemo.style.backgroundColor = '#818cf8';
+                boxStyleDemo.style.color = '#ffffff';
+                boxStyleDemo.style.fontWeight = 'bold';
+                updateCode(codeSnippetStyleArea, `
+const box = document.getElementById('box-style-demo');
+box.style.backgroundColor = '#818cf8';
+box.style.color = '#ffffff';
+box.style.fontWeight = 'bold';
+                `);
+            });
+            
+            document.getElementById('btn-reset-style').addEventListener('click', () => {
+                boxStyleDemo.style.backgroundColor = '';
+                boxStyleDemo.style.color = '';
+                boxStyleDemo.style.fontWeight = '';
+                updateCode(codeSnippetStyleArea, `
+const box = document.getElementById('box-style-demo');
+box.style.backgroundColor = '';
+box.style.color = '';
+box.style.fontWeight = '';
+                `);
+            });
+
+            document.getElementById('btn-toggle-class').addEventListener('click', () => {
+                boxStyleDemo.classList.toggle('demo-highlight');
+                updateCode(codeSnippetStyleArea, `
+const box = document.getElementById('box-style-demo');
+box.classList.toggle('demo-highlight');
+// Lớp 'demo-highlight' được định nghĩa trong <style>
+                `);
+            });
+
+        });
+    </script>
+</body>
+</html>
